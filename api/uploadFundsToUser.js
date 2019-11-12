@@ -5,8 +5,14 @@ async function uploadFundsToUser({ userEmail, amount }) {
   const action = `uploading funds ($${amount}) to user: ${userEmail}`;
   logInitiate(action);
   try {
-    // const userData = await redisClient.fetchObjectByKeyFromRedis(userEmail);
-    // return JSON.parse(userData);
+    const userAvailableFunds = getUserFundsAvailable(userEmail);
+    const sumFunds = Number(userAvailableFunds) + Number(amount);
+    const redisClient = new RedisClient();
+    const userDataJSON = await redisClient.setObjectKeyToRedis(
+      userEmail,
+      fundsAvailable,
+      String(sumFunds),
+    );
   }
   catch(err) {
     logError(action, err);

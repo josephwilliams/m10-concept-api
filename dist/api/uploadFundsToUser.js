@@ -19,8 +19,10 @@ async function uploadFundsToUser(_ref) {
   var action = 'uploading funds ($' + amount + ') to user: ' + userEmail;
   (0, _logger.logInitiate)(action);
   try {
-    // const userData = await redisClient.fetchObjectByKeyFromRedis(userEmail);
-    // return JSON.parse(userData);
+    var userAvailableFunds = getUserFundsAvailable(userEmail);
+    var sumFunds = Number(userAvailableFunds) + Number(amount);
+    var redisClient = new _controller2.default();
+    var userDataJSON = await redisClient.setObjectKeyToRedis(userEmail, fundsAvailable, String(sumFunds));
   } catch (err) {
     (0, _logger.logError)(action, err);
     var errMessage = lodashGet(err, 'response.data.message');

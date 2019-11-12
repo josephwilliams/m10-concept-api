@@ -10,6 +10,14 @@ var _controller2 = _interopRequireDefault(_controller);
 
 var _logger = require('../utils/logger');
 
+var _getUserTransferHistory = require('./getUserTransferHistory');
+
+var _getUserTransferHistory2 = _interopRequireDefault(_getUserTransferHistory);
+
+var _getUserFundsAvailable = require('./getUserFundsAvailable');
+
+var _getUserFundsAvailable2 = _interopRequireDefault(_getUserFundsAvailable);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var blankUserFields = {
@@ -32,7 +40,18 @@ async function getUserDataByEmail(userEmail) {
     var userData = {};
     if (isUser) {
       // if user, return user data
-      userData = await redisClient.fetchObjectByKeyFromRedis(userEmail);
+      var userFundsAvailable = await (0, _getUserFundsAvailable2.default)(userEmail);
+      var userTransferHistory = await (0, _getUserTransferHistory2.default)(userEmail);
+      var fundsUploaded = userTransferHistory.fundsUploaded,
+          fundsSent = userTransferHistory.fundsSent,
+          fundsReceived = userTransferHistory.fundsReceived;
+
+      userData = {
+        fundsAvailable: userFundsAvailable,
+        fundsUploaded: fundsUploaded,
+        fundsSent: fundsSent,
+        fundsReceived: fundsReceived
+      };
     } else {
       // if no user, set user (key) with blank fields
       // NOTE: redis is only capable of storing simple string pairs

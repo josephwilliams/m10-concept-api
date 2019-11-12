@@ -99,6 +99,22 @@ class RedisClient {
     });
   }
 
+  // store object to redis by key
+  async setObjectKeyToRedis(objectKey, key, newValue) {
+    return new Promise((resolve, reject) => {
+      // obj must be string key/value pairs, e.g. 'animal': 'dog'
+      const action = 'setting object key value in redis: ' + objectKey + key + newValue;
+      this.client.hmset(objectKey, key, newValue, function(err, reply) {
+        if (err) {
+          reject(err);
+        }
+
+        logSuccess(action);
+        resolve(reply);
+      });
+    });
+  }
+
   // fetch object from redis by key
   fetchObjectByKeyFromRedis(key) {
     return new Promise((resolve, reject) => {

@@ -143,16 +143,37 @@ var RedisClient = function () {
       });
     }
 
+    // store object to redis by key
+
+  }, {
+    key: 'setObjectKeyToRedis',
+    value: async function setObjectKeyToRedis(objectKey, key, newValue) {
+      var _this6 = this;
+
+      return new Promise(function (resolve, reject) {
+        // obj must be string key/value pairs, e.g. 'animal': 'dog'
+        var action = 'setting object key value in redis: ' + objectKey + key + newValue;
+        _this6.client.hmset(objectKey, key, newValue, function (err, reply) {
+          if (err) {
+            reject(err);
+          }
+
+          (0, _logger.logSuccess)(action);
+          resolve(reply);
+        });
+      });
+    }
+
     // fetch object from redis by key
 
   }, {
     key: 'fetchObjectByKeyFromRedis',
     value: function fetchObjectByKeyFromRedis(key) {
-      var _this6 = this;
+      var _this7 = this;
 
       return new Promise(function (resolve, reject) {
         var action = 'fetching object by key in redis: ' + key;
-        _this6.client.hgetall(key, function (err, object) {
+        _this7.client.hgetall(key, function (err, object) {
           if (err) {
             reject(err);
           }
@@ -168,11 +189,11 @@ var RedisClient = function () {
   }, {
     key: 'checkRedisKey',
     value: function checkRedisKey(key) {
-      var _this7 = this;
+      var _this8 = this;
 
       return new Promise(function (resolve, reject) {
         var action = 'checking key in redis: ' + key;
-        _this7.client.exists(key, function (err, reply) {
+        _this8.client.exists(key, function (err, reply) {
           if (err) {
             reject(err);
           }
@@ -192,12 +213,12 @@ var RedisClient = function () {
   }, {
     key: 'deleteRedisKey',
     value: async function deleteRedisKey(key) {
-      var _this8 = this;
+      var _this9 = this;
 
       return new Promise(function (resolve, reject) {
         var action = 'deleting key in redis: ' + key;
-        var that = _this8;
-        _this8.client.del(key, function (err, reply) {
+        var that = _this9;
+        _this9.client.del(key, function (err, reply) {
           if (err) {
             reject(err);
           }

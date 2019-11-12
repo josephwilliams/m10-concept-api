@@ -1,5 +1,7 @@
 import RedisClient from '../redis/controller';
-import { logInitiate, logSuccess, logError } from '../utils/logger'
+import { logInitiate, logSuccess, logError } from '../utils/logger';
+import getUserTransferHistory from './getUserTransferHistory';
+import getUserFundsAvailable from './getUserFundsAvailable';
 
 const blankUserFields = {
   fundsAvailable: 0,
@@ -21,7 +23,15 @@ async function getUserDataByEmail(userEmail) {
     let userData = {};
     if (isUser) {
       // if user, return user data
-      userData = await redisClient.fetchObjectByKeyFromRedis(userEmail);
+      const userFundsAvailable = await getUserFundsAvailable(userEmail);
+      const userTransferHistory = await getUserTransferHistory(userEmail);
+      const { fundsUploaded, fundsSent, fundsReceived } = userTransferHistory;
+      userData = {
+        fundsAvailable: userFundsAvailable,
+        fundsUploaded: fundsUploaded,
+        fundsSent: fundsSent,
+        fundsReceived: fundsReceived,
+      }
     } else {
       // if no user, set user (key) with blank fields
       // NOTE: redis is only capable of storing simple string pairs
