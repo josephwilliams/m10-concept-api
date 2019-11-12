@@ -152,7 +152,7 @@ var RedisClient = function () {
 
       return new Promise(function (resolve, reject) {
         // obj must be string key/value pairs, e.g. 'animal': 'dog'
-        var action = 'setting object key value in redis: ' + objectKey + key + newValue;
+        var action = 'setting object key value in redis: ' + objectKey + ':  ' + key + ': ' + newValue;
         _this6.client.hmset(objectKey, key, newValue, function (err, reply) {
           if (err) {
             reject(err);

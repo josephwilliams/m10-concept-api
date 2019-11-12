@@ -1,15 +1,14 @@
 import RedisClient from '../redis/controller';
 import { logInitiate, logSuccess, logError } from '../utils/logger';
 
-async function getUserFundsAvailable(userEmail) {
+async function getUserFundsAvailable({ userEmail, redisClient }) {
   const action = `getting funds available of user ${userEmail}`;
   logInitiate(action);
   try {
-    const redisClient = new RedisClient();
-    const userDataJSON = await redisClient.fetchObjectByKeyFromRedis(userEmail);
-    const userData = JSON.parse(userDataJSON);
-    const userFundsAvailable = userData.fundsAvailable;
-    return userFundsAvailable;
+    const redisClient = redisClient || new RedisClient();
+    const userData = await redisClient.fetchObjectByKeyFromRedis(userEmail);
+    logSuccess(action);
+    return (userData || {}).fundsAvailable;
   }
   catch(err) {
     logError(action, err);

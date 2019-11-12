@@ -12,15 +12,17 @@ var _logger = require('../utils/logger');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-async function getUserFundsAvailable(userEmail) {
+async function getUserFundsAvailable(_ref) {
+  var userEmail = _ref.userEmail,
+      redisClient = _ref.redisClient;
+
   var action = 'getting funds available of user ' + userEmail;
   (0, _logger.logInitiate)(action);
   try {
-    var redisClient = new _controller2.default();
-    var userDataJSON = await redisClient.fetchObjectByKeyFromRedis(userEmail);
-    var userData = JSON.parse(userDataJSON);
-    var userFundsAvailable = userData.fundsAvailable;
-    return userFundsAvailable;
+    var _redisClient = _redisClient || new _controller2.default();
+    var userData = await _redisClient.fetchObjectByKeyFromRedis(userEmail);
+    (0, _logger.logSuccess)(action);
+    return (userData || {}).fundsAvailable;
   } catch (err) {
     (0, _logger.logError)(action, err);
   }

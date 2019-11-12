@@ -23,11 +23,11 @@ async function getUserDataByEmail(userEmail) {
     let userData = {};
     if (isUser) {
       // if user, return user data
-      const userFundsAvailable = await getUserFundsAvailable(userEmail);
-      const userTransferHistory = await getUserTransferHistory(userEmail);
-      const { fundsUploaded, fundsSent, fundsReceived } = userTransferHistory;
+      const userTransferHistory = await getUserTransferHistory({ userEmail, redisClient });
+      const { fundsAvailable, fundsUploaded, fundsSent, fundsReceived } = userTransferHistory;
       userData = {
-        fundsAvailable: userFundsAvailable,
+        email: userEmail,
+        fundsAvailable: fundsAvailable,
         fundsUploaded: fundsUploaded,
         fundsSent: fundsSent,
         fundsReceived: fundsReceived,
@@ -36,6 +36,7 @@ async function getUserDataByEmail(userEmail) {
       // if no user, set user (key) with blank fields
       // NOTE: redis is only capable of storing simple string pairs
       await redisClient.storeObjectToRedis(userEmail, {
+        'email': userEmail,
         'fundsAvailable': '0',
         'fundsUploaded': '[]',
         'fundsSent': '[]',
@@ -44,6 +45,7 @@ async function getUserDataByEmail(userEmail) {
       userData = blankUserFields;
     }
 
+    logSuccess(action);
     return userData;
   }
   catch(err) {

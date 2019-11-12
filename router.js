@@ -1,5 +1,6 @@
 import { Router, json } from 'express';
 import getUserDataByEmail from './api/getUserDataByEmail';
+import uploadFundsToUser from './api/uploadFundsToUser';
 const router = new Router();
 router.use(json());
 
@@ -11,7 +12,7 @@ router.get('/user/:userEmail', async (req, res, next) => {
   }
   catch(err) {
     res.json({
-      error: err,
+      error: err.toString(),
     });
     next(err);
   }
@@ -19,13 +20,13 @@ router.get('/user/:userEmail', async (req, res, next) => {
 
 router.post('/upload-funds', async (req, res, next) => {
   try {
-    const { userEmail, amount } = req.body;
-    const result = await uploadFundsToUser({ userEmail, amount });
+    const { userEmail, userInstitution, amount } = req.body;
+    const result = await uploadFundsToUser({ userEmail, userInstitution, amount });
     res.json(result);
   }
   catch(err) {
     res.json({
-      error: err,
+      error: err.toString(),
     });
     next(err);
   }
