@@ -25,6 +25,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "heroku-ssl-redirect": "^0.0.4",
+    "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "redis": "^2.8.0",
     "rimraf": "^3.0.0"

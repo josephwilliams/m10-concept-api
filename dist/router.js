@@ -4,24 +4,26 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var _express = require('express');
+
+var _getUserDataByEmail = require('./api/getUserDataByEmail');
+
+var _getUserDataByEmail2 = _interopRequireDefault(_getUserDataByEmail);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var router = new _express.Router();
 router.use((0, _express.json)());
 
-router.get('/test', async function (req, res, next) {
+router.get('/user/:userEmail', async function (req, res, next) {
   try {
-    // const result = await something();
+    var userEmail = req.params.userEmail;
 
-    res.json({
-      action: 'doing something'
-    });
+    var result = await (0, _getUserDataByEmail2.default)(userEmail);
+    res.json(result);
   } catch (err) {
-    console.log('>> ERROR', typeof err === 'undefined' ? 'undefined' : _typeof(err));
     res.json({
-      error: err.toString()
+      error: err
     });
     next(err);
   }

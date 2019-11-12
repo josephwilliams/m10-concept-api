@@ -1,20 +1,31 @@
 import { Router, json } from 'express';
-
+import getUserDataByEmail from './api/getUserDataByEmail';
 const router = new Router();
 router.use(json());
 
-router.get('/test', async (req, res, next) => {
+router.get('/user/:userEmail', async (req, res, next) => {
   try {
-    // const result = await something();
-
-    res.json({
-      action: 'doing something',
-    });
+    const { userEmail } = req.params;
+    const result = await getUserDataByEmail(userEmail);
+    res.json(result);
   }
   catch(err) {
-    console.log('>> ERROR', typeof err);
     res.json({
-      error: err.toString(),
+      error: err,
+    });
+    next(err);
+  }
+});
+
+router.post('/upload-funds', async (req, res, next) => {
+  try {
+    const { userEmail, amount } = req.body;
+    const result = await uploadFundsToUser({ userEmail, amount });
+    res.json(result);
+  }
+  catch(err) {
+    res.json({
+      error: err,
     });
     next(err);
   }
