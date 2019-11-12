@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "engines": {
+    "node": "10.14.1"
+  },
   "scripts": {
     "build": "rimraf dist/ && babel ./ --out-dir dist/ --ignore ./node_modules,./tmp,./.babelrc,./package.json,./npm-debug.log --copy-files",
     "start": "npm run build && node --inspect dist/server.js --exec babel-node --presets es2015,stage-2",
