@@ -4,18 +4,19 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _controller = require('../redis/controller');
+
+var _controller2 = _interopRequireDefault(_controller);
+
 var _logger = require('../utils/logger');
 
-var axios = require('axios');
-var lodashGet = require('lodash/get');
-// import RedisClient from '../redis/controller';
-
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 async function uploadFundsToUser(_ref) {
   var userEmail = _ref.userEmail,
       amount = _ref.amount;
 
-  var action = 'getting data of user: ' + userEmail;
+  var action = 'uploading funds ($' + amount + ') to user: ' + userEmail;
   (0, _logger.logInitiate)(action);
   try {
     // const userData = await redisClient.fetchObjectByKeyFromRedis(userEmail);

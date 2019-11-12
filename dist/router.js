@@ -29,6 +29,22 @@ router.get('/user/:userEmail', async function (req, res, next) {
   }
 });
 
+router.post('/upload-funds', async function (req, res, next) {
+  try {
+    var _req$body = req.body,
+        userEmail = _req$body.userEmail,
+        amount = _req$body.amount;
+
+    var result = await uploadFundsToUser({ userEmail: userEmail, amount: amount });
+    res.json(result);
+  } catch (err) {
+    res.json({
+      error: err
+    });
+    next(err);
+  }
+});
+
 router.get('/status', function (req, res, next) {
   res.json({ status: 'ok' });
   next();
