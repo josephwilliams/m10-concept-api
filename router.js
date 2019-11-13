@@ -2,6 +2,7 @@ import { Router, json } from 'express';
 import getUserDataByEmail from './api/getUserDataByEmail';
 import loadFundsToUser from './api/loadFundsToUser';
 import unloadFundsOfUser from './api/unloadFundsOfUser';
+import sendFundsToUser from './api/sendFundsToUser';
 
 const router = new Router();
 router.use(json());
@@ -63,6 +64,25 @@ router.post('/unload-funds', async (req, res, next) => {
   }
 });
 
+router.post('/send-funds', async (req, res, next) => {
+  try {
+    const { userEmail, recipientEmail, userInstitution, amount } = req.body;
+    const result = await sendFundsToUser({
+      userEmail,
+      recipientEmail,
+      userInstitution,
+      amount,
+      redisClient,
+    });
+    res.json(result);
+  }
+  catch(err) {
+    res.json({
+      error: err.toString(),
+    });
+    next(err);
+  }
+});
 
 router.get('/status', (req, res, next) => {
   res.json({ status: 'ok' });
