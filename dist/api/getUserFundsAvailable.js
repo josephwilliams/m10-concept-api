@@ -19,8 +19,7 @@ async function getUserFundsAvailable(_ref) {
   var action = 'getting funds available of user ' + userEmail;
   (0, _logger.logInitiate)(action);
   try {
-    var _redisClient = _redisClient || new _controller2.default();
-    var userData = await _redisClient.fetchObjectByKeyFromRedis(userEmail);
+    var userData = await redisClient.fetchObjectByKeyFromRedis(userEmail);
     (0, _logger.logSuccess)(action);
     return (userData || {}).fundsAvailable;
   } catch (err) {

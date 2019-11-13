@@ -1,17 +1,15 @@
-import RedisClient from '../redis/controller';
 import { logInitiate, logSuccess, logError } from '../utils/logger';
 import moment from 'moment';
 import getUserFundsAvailable from './getUserFundsAvailable';
 import getUserTransferHistory from './getUserTransferHistory';
 
-async function uploadFundsToUser({ userEmail, userInstitution, amount }) {
-  const action = `uploading funds ($${amount}) to user: ${userEmail}`;
+async function unloadFundsOfUser({ userEmail, userInstitution, amount, redisClient }) {
+  const action = `unloading funds ($${amount}) of user: ${userEmail}`;
   logInitiate(action);
   try {
     // update user 'fundsAvailable' value
-    const userAvailableFunds = await getUserFundsAvailable(userEmail);
-    const sumFunds = Number(userAvailableFunds) + Number(amount);
-    const redisClient = new RedisClient();
+    const userAvailableFunds = await getUserFundsAvailable({ userEmail, redisClient });
+    const sumFunds = Number(userAvailableFunds) - Number(amount);
     await redisClient.setObjectKeyToRedis(
       userEmail,
       'fundsAvailable',
@@ -20,21 +18,22 @@ async function uploadFundsToUser({ userEmail, userInstitution, amount }) {
 
     // update user fund uploads transaction history
     const userTransferHistory = await getUserTransferHistory({ userEmail, redisClient });
-    const { fundsUploaded } = userTransferHistory;
-    const fundsUploadedArr = JSON.parse(fundsUploaded);
+    const { fundsUnloaded } = userTransferHistory;
+    const fundsUnloadedArr = JSON.parse(fundsUnloaded);
     const timeNow = moment().format();
-    const fundsUploadedObj = {
+    const fundsUnloadedObj = {
       senderEmail: userEmail,
       time: timeNow,
       amount: amount,
       institution: userInstitution,
+      type: 'UNLOAD',
     };
-    fundsUploadedArr.push(fundsUploadedObj);
-    const fundsUploadedArrStr = JSON.stringify(fundsUploadedArr);
+    fundsUnloadedArr.push(fundsUnloadedObj);
+    const fundsUnloadedArrStr = JSON.stringify(fundsUnloadedArr);
     await redisClient.setObjectKeyToRedis(
       userEmail,
-      'fundsUploaded',
-      fundsUploadedArrStr,
+      'fundsUnloaded',
+      fundsUnloadedArrStr,
     );
 
     logSuccess(action);
@@ -44,4 +43,4 @@ async function uploadFundsToUser({ userEmail, userInstitution, amount }) {
   }
 }
 
-export default uploadFundsToUser;
+export default unloadFundsOfUser;

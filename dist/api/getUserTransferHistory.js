@@ -19,8 +19,7 @@ async function getUserTransferHistory(_ref) {
   var action = 'getting fund transfer history of user ' + userEmail;
   (0, _logger.logInitiate)(action);
   try {
-    var _redisClient = _redisClient || new _controller2.default();
-    var userData = await _redisClient.fetchObjectByKeyFromRedis(userEmail);
+    var userData = await redisClient.fetchObjectByKeyFromRedis(userEmail);
     // TODO: refactor this such that each transfer is a separate key to keep json response shorter
     (0, _logger.logSuccess)(action);
     return userData;

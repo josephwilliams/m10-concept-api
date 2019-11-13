@@ -7,6 +7,9 @@ import router from './router';
 import cors from 'cors';
 import sslRedirect from 'heroku-ssl-redirect';
 
+import RedisClient from './redis/controller';
+export const redisClient = new RedisClient();
+
 // enable cors
 app.use(cors());
 

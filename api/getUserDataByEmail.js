@@ -1,22 +1,29 @@
-import RedisClient from '../redis/controller';
 import { logInitiate, logSuccess, logError } from '../utils/logger';
 import getUserTransferHistory from './getUserTransferHistory';
 import getUserFundsAvailable from './getUserFundsAvailable';
 
-const blankUserFields = {
-  fundsAvailable: 0,
-  fundsUploaded: [],
-  fundsSent: [],
-  fundsReceived: [],
-};
+function getBlankUserFieldsStr(email) {
+  const blankUserFields = {
+    email: email,
+    fundsAvailable: 0,
+    fundsLoaded: [],
+    fundsSent: [],
+    fundsReceived: [],
+    fundsUnloaded: [],
+  };
 
-const blankUserFieldsStr = JSON.stringify(blankUserFields);
+  return JSON.stringify(blankUserFields);
+}
 
-async function getUserDataByEmail(userEmail) {
+async function getUserDataByEmail({ userEmail, redisClient }) {
   const action = `getting data of user: ${userEmail}`;
   logInitiate(action);
   try {
-    const redisClient = new RedisClient();
+    if (!userEmail) {
+      throw new Error('no userEmail provided.');
+      return {};
+    }
+
     // check if user (key) exists
     const isUser = await redisClient.checkRedisKey(userEmail);
 
@@ -24,13 +31,20 @@ async function getUserDataByEmail(userEmail) {
     if (isUser) {
       // if user, return user data
       const userTransferHistory = await getUserTransferHistory({ userEmail, redisClient });
-      const { fundsAvailable, fundsUploaded, fundsSent, fundsReceived } = userTransferHistory;
+      const {
+        fundsAvailable,
+        fundsLoaded,
+        fundsSent,
+        fundsReceived,
+        fundsUnloaded,
+      } = userTransferHistory;
       userData = {
         email: userEmail,
         fundsAvailable: fundsAvailable,
-        fundsUploaded: fundsUploaded,
+        fundsLoaded: fundsLoaded,
         fundsSent: fundsSent,
         fundsReceived: fundsReceived,
+        fundsUnloaded: fundsUnloaded,
       }
     } else {
       // if no user, set user (key) with blank fields
@@ -38,11 +52,13 @@ async function getUserDataByEmail(userEmail) {
       await redisClient.storeObjectToRedis(userEmail, {
         'email': userEmail,
         'fundsAvailable': '0',
-        'fundsUploaded': '[]',
+        'fundsLoaded': '[]',
         'fundsSent': '[]',
         'fundsReceived': '[]',
+        'fundsUnloaded': '[]',
       });
-      userData = blankUserFields;
+
+      userData = getBlankUserFieldsStr(userEmail);
     }
 
     logSuccess(action);

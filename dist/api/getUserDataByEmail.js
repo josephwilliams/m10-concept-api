@@ -4,10 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _controller = require('../redis/controller');
-
-var _controller2 = _interopRequireDefault(_controller);
-
 var _logger = require('../utils/logger');
 
 var _getUserTransferHistory = require('./getUserTransferHistory');
@@ -20,20 +16,31 @@ var _getUserFundsAvailable2 = _interopRequireDefault(_getUserFundsAvailable);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var blankUserFields = {
-  fundsAvailable: 0,
-  fundsUploaded: [],
-  fundsSent: [],
-  fundsReceived: []
-};
+function getBlankUserFieldsStr(email) {
+  var blankUserFields = {
+    email: email,
+    fundsAvailable: 0,
+    fundsLoaded: [],
+    fundsSent: [],
+    fundsReceived: [],
+    fundsUnloaded: []
+  };
 
-var blankUserFieldsStr = JSON.stringify(blankUserFields);
+  return JSON.stringify(blankUserFields);
+}
 
-async function getUserDataByEmail(userEmail) {
+async function getUserDataByEmail(_ref) {
+  var userEmail = _ref.userEmail,
+      redisClient = _ref.redisClient;
+
   var action = 'getting data of user: ' + userEmail;
   (0, _logger.logInitiate)(action);
   try {
-    var redisClient = new _controller2.default();
+    if (!userEmail) {
+      throw new Error('no userEmail provided.');
+      return {};
+    }
+
     // check if user (key) exists
     var isUser = await redisClient.checkRedisKey(userEmail);
 
@@ -42,16 +49,18 @@ async function getUserDataByEmail(userEmail) {
       // if user, return user data
       var userTransferHistory = await (0, _getUserTransferHistory2.default)({ userEmail: userEmail, redisClient: redisClient });
       var fundsAvailable = userTransferHistory.fundsAvailable,
-          fundsUploaded = userTransferHistory.fundsUploaded,
+          fundsLoaded = userTransferHistory.fundsLoaded,
           fundsSent = userTransferHistory.fundsSent,
-          fundsReceived = userTransferHistory.fundsReceived;
+          fundsReceived = userTransferHistory.fundsReceived,
+          fundsUnloaded = userTransferHistory.fundsUnloaded;
 
       userData = {
         email: userEmail,
         fundsAvailable: fundsAvailable,
-        fundsUploaded: fundsUploaded,
+        fundsLoaded: fundsLoaded,
         fundsSent: fundsSent,
-        fundsReceived: fundsReceived
+        fundsReceived: fundsReceived,
+        fundsUnloaded: fundsUnloaded
       };
     } else {
       // if no user, set user (key) with blank fields
@@ -59,11 +68,13 @@ async function getUserDataByEmail(userEmail) {
       await redisClient.storeObjectToRedis(userEmail, {
         'email': userEmail,
         'fundsAvailable': '0',
-        'fundsUploaded': '[]',
+        'fundsLoaded': '[]',
         'fundsSent': '[]',
-        'fundsReceived': '[]'
+        'fundsReceived': '[]',
+        'fundsUnloaded': '[]'
       });
-      userData = blankUserFields;
+
+      userData = getBlankUserFieldsStr(userEmail);
     }
 
     (0, _logger.logSuccess)(action);

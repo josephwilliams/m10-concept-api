@@ -10,9 +10,15 @@ var _getUserDataByEmail = require('./api/getUserDataByEmail');
 
 var _getUserDataByEmail2 = _interopRequireDefault(_getUserDataByEmail);
 
-var _uploadFundsToUser = require('./api/uploadFundsToUser');
+var _loadFundsToUser = require('./api/loadFundsToUser');
 
-var _uploadFundsToUser2 = _interopRequireDefault(_uploadFundsToUser);
+var _loadFundsToUser2 = _interopRequireDefault(_loadFundsToUser);
+
+var _unloadFundsOfUser = require('./api/unloadFundsOfUser');
+
+var _unloadFundsOfUser2 = _interopRequireDefault(_unloadFundsOfUser);
+
+var _server = require('./server');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -23,7 +29,10 @@ router.get('/user/:userEmail', async function (req, res, next) {
   try {
     var userEmail = req.params.userEmail;
 
-    var result = await (0, _getUserDataByEmail2.default)(userEmail);
+    var result = await (0, _getUserDataByEmail2.default)({
+      userEmail: userEmail,
+      redisClient: _server.redisClient
+    });
     res.json(result);
   } catch (err) {
     res.json({
@@ -33,14 +42,41 @@ router.get('/user/:userEmail', async function (req, res, next) {
   }
 });
 
-router.post('/upload-funds', async function (req, res, next) {
+router.post('/load-funds', async function (req, res, next) {
   try {
     var _req$body = req.body,
         userEmail = _req$body.userEmail,
         userInstitution = _req$body.userInstitution,
         amount = _req$body.amount;
 
-    var result = await (0, _uploadFundsToUser2.default)({ userEmail: userEmail, userInstitution: userInstitution, amount: amount });
+    var result = await (0, _loadFundsToUser2.default)({
+      userEmail: userEmail,
+      userInstitution: userInstitution,
+      amount: amount,
+      redisClient: _server.redisClient
+    });
+    res.json(result);
+  } catch (err) {
+    res.json({
+      error: err.toString()
+    });
+    next(err);
+  }
+});
+
+router.post('/unload-funds', async function (req, res, next) {
+  try {
+    var _req$body2 = req.body,
+        userEmail = _req$body2.userEmail,
+        userInstitution = _req$body2.userInstitution,
+        amount = _req$body2.amount;
+
+    var result = await (0, _unloadFundsOfUser2.default)({
+      userEmail: userEmail,
+      userInstitution: userInstitution,
+      amount: amount,
+      redisClient: _server.redisClient
+    });
     res.json(result);
   } catch (err) {
     res.json({
