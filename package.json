@@ -23,7 +23,7 @@
     "babel-register": "^6.26.0",
     "chalk": "^3.0.0",
     "cors": "^2.8.5",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "heroku-ssl-redirect": "^0.0.4",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
